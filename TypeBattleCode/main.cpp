@@ -7,24 +7,51 @@
 #include <ctime>
 #include <list>
 #include <algorithm>
-#include <filesystem>
+#include <chrono>
 
-using namespace std;
+using namespace std::chrono;
 
 int RNG() {
-    return rand() % 50 + 1;
+    return std::rand() % 50 + 1;
 }
 
-string trim(string smth) {
-    smth.erase(remove(smth.begin(), smth.end(), '\r'), smth.end());
+std::string trim(std::string smth) {
+    smth.erase(std::remove(smth.begin(), smth.end(), '\r'), smth.end());
     return smth;
 }
 
+class Scoreboard {
+public:
+    Scoreboard() {
+        StartTyping = steady_clock::now();
+        Score = 0;
+    }
+
+    ~Scoreboard() {
+        auto EndTyping = steady_clock::now();
+        duration<double> elapsed = EndTyping - StartTyping;
+        std::cout << "Time: " << elapsed.count() << "s" << std::endl;
+        std::cout << "Final Score: " << Score << std::endl;
+    }
+
+    void AlterPoints(int points) {
+        Score += points;
+    }
+
+    float Share() {
+        return Score;
+    }
+
+private:
+    time_point<steady_clock> StartTyping;
+    float Score;
+};
+
 int main() {
-    srand(static_cast<unsigned int>(time(0)));
+    std::srand(static_cast<unsigned int>(std::time(0)));
 
     // Adding random IDs
-    list<int> nums;
+    std::list<int> nums;
     for (int i = 0; i < 5; ++i) {
         nums.push_back(RNG());
     }
@@ -39,7 +66,7 @@ int main() {
     retCode = SQLAllocHandle(SQL_HANDLE_DBC, envHandle, &connHandle);
 
     // Database connection
-    string connStr =
+    std::string connStr =
         "Driver={Microsoft Access Driver (*.mdb, *.accdb)};"
         "DBQ=./data/Words.accdb;";
 
@@ -47,16 +74,16 @@ int main() {
         (SQLCHAR*)(const unsigned char*)connStr.c_str(),
         SQL_NTS, NULL, 0, NULL, SQL_DRIVER_COMPLETE);
     if (!SQL_SUCCEEDED(retCode)) {
-        cout << "Error - Connection failed." << endl;
+        std::cout << "Error - Connection failed." << std::endl;
         return 1;
     }
 
-    list<string> LoadedWords;
+    std::list<std::string> LoadedWords;
 
     for (const int& RNumber : nums) {
 
         // Loading words from the database based on random IDs
-        string query = "SELECT * FROM WordSource WHERE Id = " + to_string(RNumber);
+        std::string query = "SELECT * FROM WordSource WHERE Id = " + std::to_string(RNumber);
 
         SQLAllocHandle(SQL_HANDLE_STMT, connHandle, &stmtHandle);
         retCode = SQLExecDirect(stmtHandle, (SQLCHAR*)query.c_str(), SQL_NTS);
@@ -64,8 +91,8 @@ int main() {
         SQLCHAR columnData[256];
         if (SQLFetch(stmtHandle) == SQL_SUCCESS) {
             SQLGetData(stmtHandle, 2, SQL_C_CHAR, columnData, sizeof(columnData), NULL);
-            string TempWord = reinterpret_cast<char*>(columnData);
-            LoadedWords.push_back(TempWord);
+            std::string TempWord(reinterpret_cast<const char*>(columnData));
+            LoadedWords.push_back(trim(TempWord));
         }
 
         SQLFreeHandle(SQL_HANDLE_STMT, stmtHandle);
@@ -76,9 +103,32 @@ int main() {
     SQLFreeHandle(SQL_HANDLE_DBC, connHandle);
     SQLFreeHandle(SQL_HANDLE_ENV, envHandle);
 
-    // Display loaded words
-    for (const string& word : LoadedWords) {
-        cout << trim(word) << endl;
+    Scoreboard scoreboard;
+    std::string YouType;
+    auto currentWord = LoadedWords.begin();
+
+    while (true) {
+
+        // Main game loop
+        if (currentWord == LoadedWords.end()) {
+            std::cout << "Stats: " << std::endl;
+            break;
+        }
+
+        std::cout << "Type the word: " << *currentWord << std::endl;
+        std::cout << "> ";
+        std::getline(std::cin, YouType);
+        YouType = trim(YouType);
+
+        if (YouType == *currentWord) {
+            std::cout << "+10" << std::endl;
+            scoreboard.AlterPoints(10);
+            ++currentWord;
+        }
+        else {
+            std::cout << "-5" << std::endl;
+            scoreboard.AlterPoints(-5);
+        }
     }
 
     return 0;
