@@ -1,27 +1,35 @@
 ## Ignore Visual Studio temporary files, build results, and user-specific files
 
-# User-specific files
-*.rsuser
+# Visual Studio
 *.suo
 *.user
-*.userosscache
-*.sln.docstates
-
-# Build results
-bin/
-obj/
-[Bb]uild/
-[Bb]uild[Ll]og.*
-
-# VS folders
-.vs/
-
-# Others
+*.VC.db
+*.VC.opendb
+*.ipch
+*.obj
+*.pch
+*.exe
+*.pdb
 *.log
-*.tmp
+*.tlog
+*.lastbuildstate
+*.ilk
+*.idb
+*.aps
+*.ncb
+*.opendb
 *.cache
 *.db
-*.pdb
-*.exe
-*.dll
-*.app
+*.db-shm
+*.db-wal
+*.log
+
+# Build folders
+Debug/
+Release/
+x64/
+.vscode/
+
+# SFML binaries (optional – jeśli chcesz wykluczyć DLL)
+#libs/SFML/bin/
+#libs/SFML/lib/

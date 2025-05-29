@@ -8,10 +8,11 @@
 #include <list>
 #include <algorithm>
 #include <chrono>
+#include <SFML/Graphics.hpp>
 
 using namespace std::chrono;
 
-int RNG() {
+static int RNG() {
     return std::rand() % 50 + 1;
 }
 
@@ -106,6 +107,18 @@ int main() {
     Scoreboard scoreboard;
     std::string YouType;
     auto currentWord = LoadedWords.begin();
+
+    // Testing SFML
+    sf::RenderWindow window(sf::VideoMode(800, 600), "SFML window");
+    while (window.isOpen()) {
+        sf::Event event;
+        while (window.pollEvent(event)) {
+            if (event.type == sf::Event::Closed)
+                window.close();
+        }
+        window.clear();
+        window.display();
+    }
 
     while (true) {
 
