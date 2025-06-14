@@ -1,2 +1,0 @@
-C:\Users\Norbert\TypeBattle\TypeBattleCode\x64\Debug\TypeBattleCode.exe
-C:\Users\janek\Desktop\Files\AiR\Repositories\Repo-TypeBattle\TypeBattleCode\x64\Debug\TypeBattleCode.exe

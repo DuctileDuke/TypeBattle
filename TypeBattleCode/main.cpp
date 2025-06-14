@@ -108,15 +108,27 @@ int main() {
     std::string YouType;
     auto currentWord = LoadedWords.begin();
 
-    // Testing SFML
     sf::RenderWindow window(sf::VideoMode(800, 600), "SFML window");
+
+    // Testing font
+    sf::Font font;
+    font.loadFromFile("./fonts/ITCBLKAD.TTF");
+
+    sf::Text text;
+    text.setFont(font);
+    text.setString("DZIALA !!!!!!");
+    text.setCharacterSize(100);
+    text.setFillColor(sf::Color::White);
+
     while (window.isOpen()) {
         sf::Event event;
         while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed)
                 window.close();
         }
-        window.clear();
+
+        window.clear(sf::Color::Black);
+        window.draw(text);
         window.display();
     }
 

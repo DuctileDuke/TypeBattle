@@ -3,8 +3,8 @@
   "WorkspaceRootPath": "C:\\Users\\janek\\Desktop\\Files\\AiR\\Repositories\\Repo-TypeBattle\\TypeBattleCode\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{4ABF7FD6-281C-430D-91D3-DC52046ACAC9}|TypeBattleCode.vcxproj|C:\\Users\\janek\\Desktop\\Files\\AiR\\Repositories\\Repo-TypeBattle\\TypeBattleCode\\TypeBattleCode.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{4ABF7FD6-281C-430D-91D3-DC52046ACAC9}|TypeBattleCode.vcxproj|solutionrelative:TypeBattleCode.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+      "AbsoluteMoniker": "D:0:0:{5B90B622-CEF9-4C3C-8E57-F23031B58DCC}|TypeBattleCode.vcxproj|C:\\Users\\janek\\Desktop\\Files\\AiR\\Repositories\\Repo-TypeBattle\\TypeBattleCode\\main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{5B90B622-CEF9-4C3C-8E57-F23031B58DCC}|TypeBattleCode.vcxproj|solutionrelative:main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     }
   ],
   "DocumentGroupContainers": [
@@ -19,14 +19,14 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "TypeBattleCode.cpp",
-              "DocumentMoniker": "C:\\Users\\janek\\Desktop\\Files\\AiR\\Repositories\\Repo-TypeBattle\\TypeBattleCode\\TypeBattleCode.cpp",
-              "RelativeDocumentMoniker": "TypeBattleCode.cpp",
-              "ToolTip": "C:\\Users\\janek\\Desktop\\Files\\AiR\\Repositories\\Repo-TypeBattle\\TypeBattleCode\\TypeBattleCode.cpp",
-              "RelativeToolTip": "TypeBattleCode.cpp",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAAAAAAAAAAAAA==",
+              "Title": "main.cpp",
+              "DocumentMoniker": "C:\\Users\\janek\\Desktop\\Files\\AiR\\Repositories\\Repo-TypeBattle\\TypeBattleCode\\main.cpp",
+              "RelativeDocumentMoniker": "main.cpp",
+              "ToolTip": "C:\\Users\\janek\\Desktop\\Files\\AiR\\Repositories\\Repo-TypeBattle\\TypeBattleCode\\main.cpp",
+              "RelativeToolTip": "main.cpp",
+              "ViewState": "AgIAAGkAAAAAAAAAAAAAAGMAAAAFAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2025-05-17T20:25:25.878Z",
+              "WhenOpened": "2025-06-14T13:42:36.113Z",
               "EditorCaption": ""
             }
           ]
