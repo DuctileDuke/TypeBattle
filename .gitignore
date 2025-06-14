@@ -1,35 +1,56 @@
-## Ignore Visual Studio temporary files, build results, and user-specific files
-
-# Visual Studio
+# Ignore Visual Studio folders and files
+.vs/
+*.vcxproj.user
 *.suo
 *.user
 *.VC.db
-*.VC.opendb
-*.ipch
-*.obj
-*.pch
-*.exe
-*.pdb
-*.log
-*.tlog
-*.lastbuildstate
-*.ilk
-*.idb
-*.aps
-*.ncb
-*.opendb
+*.VC.VC.opendb
+*.opensdf
+*.sdf
 *.cache
-*.db
-*.db-shm
-*.db-wal
 *.log
 
-# Build folders
+# Build results
 Debug/
 Release/
 x64/
-.vscode/
+x86/
+*.obj
+*.exe
+*.pdb
+*.ilk
+*.ipch
+*.pch
+*.bsc
+*.lib
+*.exp
 
-# SFML binaries (optional – jeśli chcesz wykluczyć DLL)
-#libs/SFML/bin/
-#libs/SFML/lib/
+# SFML DLLs – include them manually in deployment, not in source control
+*.dll
+
+# CMake-generated files (if used)
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# Backup and temporary files
+*.bak
+*.tmp
+*.old
+*~
+
+# Ignore SFML configuration if external
+SFML/
+
+# Ignore generated files by package managers or tools
+packages/
+bin/
+build/
+out/
+dist/
+
+# Ignore OS-specific files
+.DS_Store
+Thumbs.db
+desktop.ini
