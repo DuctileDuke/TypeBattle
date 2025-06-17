@@ -104,56 +104,79 @@ int main() {
     SQLFreeHandle(SQL_HANDLE_DBC, connHandle);
     SQLFreeHandle(SQL_HANDLE_ENV, envHandle);
 
-    Scoreboard scoreboard;
-    std::string YouType;
-    auto currentWord = LoadedWords.begin();
-
+    // Fullscreen mode disabled while coding (it's annoying)
+    //sf::RenderWindow window(sf::VideoMode::getDesktopMode(), "SFML window", sf::Style::Fullscreen);
     sf::RenderWindow window(sf::VideoMode(800, 600), "SFML window");
 
-    // Testing font
     sf::Font font;
     font.loadFromFile("./fonts/ITCBLKAD.TTF");
 
-    sf::Text text;
-    text.setFont(font);
-    text.setString("DZIALA !!!!!!");
-    text.setCharacterSize(100);
-    text.setFillColor(sf::Color::White);
+    sf::Text text("", font, 35);
+    text.setFillColor(sf::Color::Green);
+    sf::FloatRect textRect = text.getLocalBounds();
+    text.setPosition((800 - textRect.width) / 2, (600 - textRect.height) / 2 - 150);
+
+    sf::Text YOUtype("", font, 35);
+    YOUtype.setFillColor(sf::Color::White);
+    sf::FloatRect YOUtypeRect = YOUtype.getLocalBounds();
+    YOUtype.setPosition((800 - YOUtypeRect.width) / 2, (600 - YOUtypeRect.height) / 2 - 50);
+
+    std::string YouType;
+    std::list<std::string>::iterator currentWord = LoadedWords.begin();
+    text.setString(*currentWord);
+
+    Scoreboard score;
+    int PointCatcher = 0;
+    score.AlterPoints(PointCatcher);
 
     while (window.isOpen()) {
         sf::Event event;
         while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed)
                 window.close();
+
+            if (event.type == sf::Event::TextEntered) {
+                if (event.text.unicode < 128) {
+                    YouType += static_cast<char>(event.text.unicode);
+                }
+                YOUtype.setString(YouType);
+            }
+
+            if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Enter) {
+                YouType = trim(YouType);
+
+                if (YouType == *currentWord) {
+                    std::cout << "+10" << std::endl;
+                    PointCatcher = 10;
+                    score.AlterPoints(PointCatcher);
+                    text.setFillColor(sf::Color::Green);
+                    ++currentWord;
+
+                    if (currentWord != LoadedWords.end()) {
+                        text.setString(*currentWord);
+                        YouType.clear();
+                        YOUtype.setString("");
+                    }
+                    else {
+                        text.setString("Victory");
+                    }
+                }
+                else {
+                    std::cout << "-5" << std::endl;
+                    PointCatcher = -5;
+                    score.AlterPoints(PointCatcher);
+                    text.setFillColor(sf::Color::Red);
+                    YouType.clear();
+                    YOUtype.setString("");
+                }
+            }
         }
 
-        window.clear(sf::Color::Black);
+        window.clear();
         window.draw(text);
+        window.draw(YOUtype);
         window.display();
-    }
 
-    while (true) {
-
-        // Main game loop
-        if (currentWord == LoadedWords.end()) {
-            std::cout << "Stats: " << std::endl;
-            break;
-        }
-
-        std::cout << "Type the word: " << *currentWord << std::endl;
-        std::cout << "> ";
-        std::getline(std::cin, YouType);
-        YouType = trim(YouType);
-
-        if (YouType == *currentWord) {
-            std::cout << "+10" << std::endl;
-            scoreboard.AlterPoints(10);
-            ++currentWord;
-        }
-        else {
-            std::cout << "-5" << std::endl;
-            scoreboard.AlterPoints(-5);
-        }
     }
 
     return 0;
