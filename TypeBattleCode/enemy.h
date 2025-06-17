@@ -1,0 +1,31 @@
+#ifndef ENEMY_HPP
+#define ENEMY_HPP
+
+#include "gameObj.h"
+
+#include <SFML/Graphics.hpp>
+
+class Enemy : public GameObj
+{
+private:
+
+    sf::Sprite sprite;
+    sf::Texture texture;
+
+    int health = 5;
+    int dmg = 1;
+
+public:
+    Enemy(const std::string& nam, int heal);
+
+    void getDmg(int dmg) override;
+
+    int getEnemyHealth()
+    {
+        return health;
+    }
+
+    void draw(sf::RenderWindow* window);
+};
+
+#endif

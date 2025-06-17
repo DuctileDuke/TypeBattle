@@ -11,13 +11,16 @@
 #include <chrono>
 #include <SFML/Graphics.hpp>
 
+#include "player.h"
+#include "enemy.h"
+
 using namespace std::chrono;
 
 static int rng() {
     return std::rand() % 50 + 1;
 }
 
-std::string trim(std::string smth) {
+static std::string trim(std::string smth) {
     smth.erase(std::remove(smth.begin(), smth.end(), '\r'), smth.end());
     return smth;
 }
@@ -60,7 +63,7 @@ int main() {
 
     // Adding random IDs
     std::list<int> nums;
-    for (int i = 0; i < 5; ++i) {
+    for (int i = 0; i < 10; ++i) {
         nums.push_back(rng());
     }
 
@@ -156,9 +159,13 @@ int main() {
 
     bool typingEnabled = true;
 
+    Player player("Player", 100, 100, 100);
+    Enemy goblin("Goblin", 5);
+
     while (window.isOpen()) {
         sf::Event event;
-        while (window.pollEvent(event)) {
+        while (window.pollEvent(event))
+        {
             if (event.type == sf::Event::Closed)
                 window.close();
 
@@ -174,7 +181,8 @@ int main() {
                 youTypeStr = trim(youTypeStr);
 
                 if (currentWord != loadedWords.end() && youTypeStr == *currentWord) {
-                    pointCatcher = 10;
+                    pointCatcher = 1;
+                    goblin.getDmg(pointCatcher);
                     score.alterPoints(pointCatcher);
                     text.setFillColor(sf::Color::Black);
                     ++currentWord;
@@ -185,17 +193,9 @@ int main() {
                         youTypeStr.clear();
                         youType.setString("");
                     }
-                    else {
-                        text.setString("Victory");
-                        centerTextWithOffset(text, spriteBounds, -100.f);
-                        youTypeStr.clear();
-                        youType.setString("");
-                        instructionText.setString("");
-                        typingEnabled = false;
-                    }
                 }
                 else {
-                    pointCatcher = -5;
+                    pointCatcher = 1;
                     score.alterPoints(pointCatcher);
                     text.setFillColor(sf::Color::Red);
                     youTypeStr.clear();
@@ -206,13 +206,27 @@ int main() {
         }
 
         window.clear();
+
         window.draw(backgroundSprite);
+        player.draw(&window);
+        goblin.draw(&window);
+
         window.draw(foregroundSprite);
         window.draw(text);
         window.draw(instructionText);
         window.draw(youType);
+
+        if (goblin.getEnemyHealth() <= 0)
+        {
+            text.setString("Victory");
+            centerTextWithOffset(text, spriteBounds, -100.f);
+            youTypeStr.clear();
+            youType.setString("");
+            instructionText.setString("");
+            typingEnabled = false;
+        }
+
         window.display();
     }
-
     return 0;
 }
