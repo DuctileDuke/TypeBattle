@@ -1,4 +1,5 @@
 #include <iostream>
+#define NOMINMAX
 #include <windows.h>
 #include <sql.h>
 #include <sqlext.h>
@@ -12,7 +13,7 @@
 
 using namespace std::chrono;
 
-static int RNG() {
+static int rng() {
     return std::rand() % 50 + 1;
 }
 
@@ -24,29 +25,35 @@ std::string trim(std::string smth) {
 class Scoreboard {
 public:
     Scoreboard() {
-        StartTyping = steady_clock::now();
-        Score = 0;
+        startTyping = steady_clock::now();
+        score = 0;
     }
 
     ~Scoreboard() {
-        auto EndTyping = steady_clock::now();
-        duration<double> elapsed = EndTyping - StartTyping;
+        auto endTyping = steady_clock::now();
+        duration<double> elapsed = endTyping - startTyping;
         std::cout << "Time: " << elapsed.count() << "s" << std::endl;
-        std::cout << "Final Score: " << Score << std::endl;
+        std::cout << "Final Score: " << score << std::endl;
     }
 
-    void AlterPoints(int points) {
-        Score += points;
+    void alterPoints(int points) {
+        score += points;
     }
 
-    float Share() {
-        return Score;
+    float share() {
+        return score;
     }
 
 private:
-    time_point<steady_clock> StartTyping;
-    float Score;
+    time_point<steady_clock> startTyping;
+    float score;
 };
+
+void centerTextWithOffset(sf::Text& text, const sf::FloatRect& container, float offsetY) {
+    sf::FloatRect bounds = text.getLocalBounds();
+    text.setOrigin(bounds.left + bounds.width / 2.f, bounds.top + bounds.height / 2.f);
+    text.setPosition(container.left + container.width / 2.f, container.top + container.height / 2.f + offsetY);
+}
 
 int main() {
     std::srand(static_cast<unsigned int>(std::time(0)));
@@ -54,7 +61,7 @@ int main() {
     // Adding random IDs
     std::list<int> nums;
     for (int i = 0; i < 5; ++i) {
-        nums.push_back(RNG());
+        nums.push_back(rng());
     }
 
     SQLHANDLE envHandle = nullptr;
@@ -79,12 +86,12 @@ int main() {
         return 1;
     }
 
-    std::list<std::string> LoadedWords;
+    std::list<std::string> loadedWords;
 
-    for (const int& RNumber : nums) {
+    for (const int& rNumber : nums) {
 
         // Loading words from the database based on random IDs
-        std::string query = "SELECT * FROM WordSource WHERE Id = " + std::to_string(RNumber);
+        std::string query = "SELECT * FROM WordSource WHERE Id = " + std::to_string(rNumber);
 
         SQLAllocHandle(SQL_HANDLE_STMT, connHandle, &stmtHandle);
         retCode = SQLExecDirect(stmtHandle, (SQLCHAR*)query.c_str(), SQL_NTS);
@@ -92,8 +99,8 @@ int main() {
         SQLCHAR columnData[256];
         if (SQLFetch(stmtHandle) == SQL_SUCCESS) {
             SQLGetData(stmtHandle, 2, SQL_C_CHAR, columnData, sizeof(columnData), NULL);
-            std::string TempWord(reinterpret_cast<const char*>(columnData));
-            LoadedWords.push_back(trim(TempWord));
+            std::string tempWord(reinterpret_cast<const char*>(columnData));
+            loadedWords.push_back(trim(tempWord));
         }
 
         SQLFreeHandle(SQL_HANDLE_STMT, stmtHandle);
@@ -104,30 +111,50 @@ int main() {
     SQLFreeHandle(SQL_HANDLE_DBC, connHandle);
     SQLFreeHandle(SQL_HANDLE_ENV, envHandle);
 
-    // Fullscreen mode disabled while coding (it's annoying)
-    //sf::RenderWindow window(sf::VideoMode::getDesktopMode(), "SFML window", sf::Style::Fullscreen);
-    sf::RenderWindow window(sf::VideoMode(800, 600), "SFML window");
+    sf::RenderWindow window(sf::VideoMode(1280, 720), "SFML window");
+
+    // Loading assets
+    sf::Texture battleBg;
+    battleBg.loadFromFile("assets/BattleBg.jpg");
+    sf::Sprite backgroundSprite(battleBg);
+
+    sf::Texture papyrus;
+    papyrus.loadFromFile("assets/Papyrus.png");
+    sf::Sprite foregroundSprite(papyrus);
+    foregroundSprite.setPosition(910, 130);
+    foregroundSprite.setScale(2.4f, 2.4f);
+
+    sf::FloatRect spriteBounds = foregroundSprite.getGlobalBounds();
 
     sf::Font font;
     font.loadFromFile("./fonts/ITCBLKAD.TTF");
 
-    sf::Text text("", font, 35);
-    text.setFillColor(sf::Color::Green);
-    sf::FloatRect textRect = text.getLocalBounds();
-    text.setPosition((800 - textRect.width) / 2, (600 - textRect.height) / 2 - 150);
+    sf::Text text("", font, 45);
+    text.setFillColor(sf::Color::Black);
 
-    sf::Text YOUtype("", font, 35);
-    YOUtype.setFillColor(sf::Color::White);
-    sf::FloatRect YOUtypeRect = YOUtype.getLocalBounds();
-    YOUtype.setPosition((800 - YOUtypeRect.width) / 2, (600 - YOUtypeRect.height) / 2 - 50);
+    sf::Text youType("", font, 45);
+    youType.setFillColor(sf::Color::Black);
 
-    std::string YouType;
-    std::list<std::string>::iterator currentWord = LoadedWords.begin();
-    text.setString(*currentWord);
+    sf::Text instructionText("Type the word:", font, 45);
+    instructionText.setFillColor(sf::Color::Black);
+
+    sf::FloatRect instrBounds = instructionText.getLocalBounds();
+    instructionText.setOrigin(instrBounds.left + instrBounds.width / 2.f, instrBounds.top + instrBounds.height / 2.f);
+    instructionText.setPosition(spriteBounds.left + spriteBounds.width / 2.f, spriteBounds.top + 95.f);
+
+    std::string youTypeStr;
+    std::list<std::string>::iterator currentWord = loadedWords.begin();
+
+    if (currentWord != loadedWords.end()) {
+        text.setString(*currentWord);
+        centerTextWithOffset(text, spriteBounds, -100.f);
+    }
 
     Scoreboard score;
-    int PointCatcher = 0;
-    score.AlterPoints(PointCatcher);
+    int pointCatcher = 0;
+    score.alterPoints(pointCatcher);
+
+    bool typingEnabled = true;
 
     while (window.isOpen()) {
         sf::Event event;
@@ -135,48 +162,56 @@ int main() {
             if (event.type == sf::Event::Closed)
                 window.close();
 
-            if (event.type == sf::Event::TextEntered) {
+            if (typingEnabled && event.type == sf::Event::TextEntered) {
                 if (event.text.unicode < 128) {
-                    YouType += static_cast<char>(event.text.unicode);
+                    youTypeStr += static_cast<char>(event.text.unicode);
+                    youType.setString(youTypeStr);
+                    centerTextWithOffset(youType, spriteBounds, -5.f);
                 }
-                YOUtype.setString(YouType);
             }
 
             if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Enter) {
-                YouType = trim(YouType);
+                youTypeStr = trim(youTypeStr);
 
-                if (YouType == *currentWord) {
-                    std::cout << "+10" << std::endl;
-                    PointCatcher = 10;
-                    score.AlterPoints(PointCatcher);
-                    text.setFillColor(sf::Color::Green);
+                if (currentWord != loadedWords.end() && youTypeStr == *currentWord) {
+                    pointCatcher = 10;
+                    score.alterPoints(pointCatcher);
+                    text.setFillColor(sf::Color::Black);
                     ++currentWord;
 
-                    if (currentWord != LoadedWords.end()) {
+                    if (currentWord != loadedWords.end()) {
                         text.setString(*currentWord);
-                        YouType.clear();
-                        YOUtype.setString("");
+                        centerTextWithOffset(text, spriteBounds, -100.f);
+                        youTypeStr.clear();
+                        youType.setString("");
                     }
                     else {
                         text.setString("Victory");
+                        centerTextWithOffset(text, spriteBounds, -100.f);
+                        youTypeStr.clear();
+                        youType.setString("");
+                        instructionText.setString("");
+                        typingEnabled = false;
                     }
                 }
                 else {
-                    std::cout << "-5" << std::endl;
-                    PointCatcher = -5;
-                    score.AlterPoints(PointCatcher);
+                    pointCatcher = -5;
+                    score.alterPoints(pointCatcher);
                     text.setFillColor(sf::Color::Red);
-                    YouType.clear();
-                    YOUtype.setString("");
+                    youTypeStr.clear();
+                    youType.setString("");
+                    centerTextWithOffset(youType, spriteBounds, -5.f);
                 }
             }
         }
 
         window.clear();
+        window.draw(backgroundSprite);
+        window.draw(foregroundSprite);
         window.draw(text);
-        window.draw(YOUtype);
+        window.draw(instructionText);
+        window.draw(youType);
         window.display();
-
     }
 
     return 0;
