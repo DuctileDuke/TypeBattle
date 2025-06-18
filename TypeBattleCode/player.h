@@ -13,16 +13,11 @@ private:
 	sf::Texture texture2;
     sf::Texture texture3;
 
-    int maxX;
-    int maxY;
-
-    int speed = 1;
-
     int health = 3;
     int dmg = 2;
 
 public:
-    Player(const std::string& nam, int heal, int maxX, int maxY);
+    Player(const std::string& nam, int heal);
 
     void getDmg(int dmg) override;
 

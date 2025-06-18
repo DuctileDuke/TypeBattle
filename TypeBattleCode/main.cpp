@@ -84,7 +84,7 @@ int main() {
 
 	Place place = MENU;
 
-	Player player("Player", 100, 100, 100);
+	Player player("Player", 100);
 	Enemy goblin("Goblin", 5);
 
 	// Loading assets
@@ -245,7 +245,7 @@ int main() {
 						place = BATTLE;
 						// Music
 						sound.setLoop(true);
-						//sound.play();
+						sound.play();
 					}
 					else if (menuIndex == 1)
 					{

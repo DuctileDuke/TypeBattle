@@ -2,8 +2,8 @@
 #include <iostream>
 #include <stdexcept>
 
-Player::Player(const std::string& nam, int heal, int maxX, int maxY)
-    : GameObj(nam, heal), maxX(maxX), maxY(maxY)
+Player::Player(const std::string& nam, int heal)
+    : GameObj(nam, heal)
 {
     if (!texture.loadFromFile("assets/player.png"))
     {

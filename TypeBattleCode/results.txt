@@ -11,3 +11,16 @@ Time: 71.567s, Score: 117
 Time: 21.3796s, Score: 9
 Time: 23.7825s, Score: 10
 Time: 24.7844s, Score: 225
+Time: 60.0739s, Score: 121
+Time: 147.435s, Score: 229
+Time: 3.55356s, Score: 0
+Time: 22.8212s, Score: 101
+Time: 18.785s, Score: 101
+Time: 4.31811s, Score: 0
+Time: 48.1267s, Score: 12
+Time: 22.5276s, Score: 13
+Time: 15.4946s, Score: 5
+Time: 31.8972s, Score: 10
+Time: 52.8006s, Score: 11
+Time: 28.4391s, Score: 3
+Time: 36.3876s, Score: 10
