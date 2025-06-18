@@ -4,35 +4,18 @@
 #include <sql.h>
 #include <sqlext.h>
 #include <string>
-#include <cstdlib>
-#include <ctime>
 #include <list>
-#include <algorithm>
 #include <chrono>
+
+// SFML
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 
+// Headers
 #include "player.h"
 #include "enemy.h"
 #include "scoreboard.h"
-
-using namespace std::chrono;
-
-static int rng() {
-	return std::rand() % 50 + 1;
-}
-
-static std::string trim(std::string smth) {
-	smth.erase(std::remove(smth.begin(), smth.end(), '\r'), smth.end());
-	return smth;
-}
-
-void centerTextWithOffset(sf::Text& text, const sf::FloatRect& container, float offsetY)
-{
-	sf::FloatRect bounds = text.getLocalBounds();
-	text.setOrigin(bounds.left + bounds.width / 2.f, bounds.top + bounds.height / 2.f);
-	text.setPosition(container.left + container.width / 2.f, container.top + container.height / 2.f + offsetY);
-}
+#include "func.h"
 
 int main() {
 	std::srand(static_cast<unsigned int>(std::time(0)));
@@ -136,9 +119,6 @@ int main() {
 
 	sf::FloatRect spriteBounds = foregroundSprite.getGlobalBounds();
 
-	sf::Font font;
-	font.loadFromFile("./fonts/ITCBLKAD.TTF");
-
 	struct Menu
 	{
 		std::string writing;
@@ -147,6 +127,10 @@ int main() {
 
 	std::vector<Menu> menu;
 	int menuIndex = 0;
+
+	// Displayed text
+	sf::Font font;
+	font.loadFromFile("./fonts/ITCBLKAD.TTF");
 
 	sf::Text text;
 	text.setFont(font);
@@ -170,9 +154,6 @@ int main() {
 	sf::Text youType("", font, 45);
 	youType.setFillColor(sf::Color::Black);
 
-	sf::Text instructionText("Type the word:", font, 45);
-	instructionText.setFillColor(sf::Color::Black);
-
 	sf::Text playerHealth;
 	playerHealth.setFont(font);
 	playerHealth.setCharacterSize(40);
@@ -187,6 +168,8 @@ int main() {
 	goblinHealth.setFillColor(sf::Color::Red);
 	goblinHealth.setString("Goblin Health: " + std::to_string(goblin.getEnemyHealth()));
 
+	sf::Text instructionText("Type the word:", font, 45);
+	instructionText.setFillColor(sf::Color::Black);
 	sf::FloatRect instrBounds = instructionText.getLocalBounds();
 	instructionText.setOrigin(instrBounds.left + instrBounds.width / 2.f, instrBounds.top + instrBounds.height / 2.f);
 	instructionText.setPosition(spriteBounds.left + spriteBounds.width / 2.f, spriteBounds.top + 95.f);
@@ -205,6 +188,7 @@ int main() {
 
 	bool typingEnabled = true;
 	bool keyHeld = false;
+	bool professorFlag = false;
 
 	while (window.isOpen())
 	{
@@ -217,6 +201,7 @@ int main() {
 			}
 
 			if (place == MENU)
+				// Menu configs
 			{
 				if (event.type == sf::Event::KeyPressed)
 				{
@@ -258,8 +243,9 @@ int main() {
 					if (menuIndex == 0)
 					{
 						place = BATTLE;
+						// Music
 						sound.setLoop(true);
-						sound.play();
+						//sound.play();
 					}
 					else if (menuIndex == 1)
 					{
@@ -272,7 +258,8 @@ int main() {
 
 					if (currentWord != loadedWords.end() && youTypeStr == *currentWord)
 					{
-						pointCatcher = 1;
+						// Deal damage
+						pointCatcher = 1 * player.getPlayerDmg();
 						goblin.getDmg(pointCatcher);
 						goblin.updateTexture();
 						score.alterPoints(pointCatcher);
@@ -287,11 +274,22 @@ int main() {
 							youType.setString("");
 						}
 					}
+					else if (youTypeStr == "matrix")
+					{
+						player.cheatTexture();
+						professorFlag = true;
+						youTypeStr.clear();
+						youType.setString("");
+					}
 					else
 					{
+						// Take damage
 						pointCatcher = 1;
 						player.getDmg(pointCatcher);
-						player.updateTexture();
+						if (!professorFlag)
+						{
+							player.updateTexture();
+						}
 						score.alterPoints(pointCatcher);
 						text2.setFillColor(sf::Color::Red);
 						youTypeStr.clear();

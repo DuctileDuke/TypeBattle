@@ -15,6 +15,11 @@ Player::Player(const std::string& nam, int heal, int maxX, int maxY)
         throw std::invalid_argument("Failed to load enemy texture");
     }
 
+    if (!texture3.loadFromFile("assets/professorA.png"))
+    {
+        throw std::invalid_argument("Failed to load enemy texture");
+    }
+
     sprite.setTexture(texture);
     sprite.setScale(.8, .8);
     sprite.setPosition(100, 350);
@@ -47,4 +52,13 @@ void Player::updateTexture()
     else {
         sprite.setTexture(texture);
     }
+}
+
+void Player::cheatTexture()
+{
+    sprite.setTexture(texture3, true);
+    sprite.setScale(.3, .3);
+    sprite.setPosition(100, 220);
+    health = 100;
+    dmg = 100;
 }

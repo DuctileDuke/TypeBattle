@@ -11,6 +11,7 @@ private:
     sf::Sprite sprite;
     sf::Texture texture;
 	sf::Texture texture2;
+    sf::Texture texture3;
 
     int maxX;
     int maxY;
@@ -32,7 +33,14 @@ public:
         return health;
     }
 
+    int getPlayerDmg()
+    {
+        return dmg;
+    }
+
     void updateTexture();
+
+    void cheatTexture();
 
 };
 

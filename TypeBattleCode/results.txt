@@ -1,3 +1,7 @@
 Time: 17.9158s, Score: 6
 Time: 15.5308s, Score: 5
 Time: 2.87703s, Score: 0
+Time: 12.4835s, Score: 0
+Time: 5.30997s, Score: 0
+Time: 18.7929s, Score: 100
+Time: 15.0267s, Score: 106
