@@ -13,7 +13,7 @@ private:
     sf::Texture texture;
 	sf::Texture texture2;
 
-    int health = 5;
+    int health = 10;
     int dmg = 1;
 
 public:

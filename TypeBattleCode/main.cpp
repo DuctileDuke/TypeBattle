@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <chrono>
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 
 #include "player.h"
 #include "enemy.h"
@@ -90,6 +91,7 @@ int main() {
 	SQLFreeHandle(SQL_HANDLE_ENV, envHandle);
 
 	sf::RenderWindow window(sf::VideoMode(1280, 720), "SFML window");
+	window.setFramerateLimit(60);
 
 	enum Place
 	{
@@ -103,6 +105,11 @@ int main() {
 	Enemy goblin("Goblin", 5);
 
 	// Loading assets
+	sf::SoundBuffer soundBuffer;
+	if (!soundBuffer.loadFromFile("audio/sound.wav"))
+		return EXIT_FAILURE;
+	sf::Sound sound(soundBuffer);
+
 	sf::Texture menuBgTexture;
 	if (!menuBgTexture.loadFromFile("assets/menuBg.png"))
 	{
@@ -148,10 +155,13 @@ int main() {
 	text.setFillColor(sf::Color::White);
 
 	Menu menu1{ "Play", text };
+	menu1.text.setString(menu1.writing);
+	menu1.text.setPosition(215, 300);
 	menu.push_back(menu1);
 
-	text.setPosition(100, 250);
 	Menu menu2{ "Quit", text };
+	menu2.text.setString(menu2.writing);
+	menu2.text.setPosition(880, 300);
 	menu.push_back(menu2);
 
 	sf::Text text2("", font, 45);
@@ -189,21 +199,47 @@ int main() {
 		centerTextWithOffset(text2, spriteBounds, -100.f);
 	}
 
-
-
 	Scoreboard score;
 	int pointCatcher = 0;
 	score.alterPoints(pointCatcher);
 
 	bool typingEnabled = true;
+	bool keyHeld = false;
 
 	while (window.isOpen())
 	{
 		sf::Event event;
 		while (window.pollEvent(event))
 		{
-			if (event.type == sf::Event::Closed)
+			if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape)
+			{
 				window.close();
+			}
+
+			if (place == MENU)
+			{
+				if (event.type == sf::Event::KeyPressed)
+				{
+					if (!keyHeld)
+					{
+						if (event.key.code == sf::Keyboard::Right && menuIndex < menu.size() - 1)
+						{
+							menuIndex++;
+							keyHeld = true;
+						}
+						else if (event.key.code == sf::Keyboard::Left && menuIndex > 0)
+						{
+							menuIndex--;
+							keyHeld = true;
+						}
+					}
+				}
+				else if (event.type == sf::Event::KeyReleased &&
+					(event.key.code == sf::Keyboard::Left || event.key.code == sf::Keyboard::Right))
+				{
+					keyHeld = false;
+				}
+			}
 
 			if (typingEnabled && event.type == sf::Event::TextEntered)
 			{
@@ -222,13 +258,14 @@ int main() {
 					if (menuIndex == 0)
 					{
 						place = BATTLE;
+						sound.setLoop(true);
+						sound.play();
 					}
 					else if (menuIndex == 1)
 					{
 						window.close();
 					}
 				}
-
 				else if (place == BATTLE)
 				{
 					youTypeStr = trim(youTypeStr);
@@ -264,18 +301,14 @@ int main() {
 				}
 			}
 		}
-
+	
 		switch (place)
 		{
-		case MENU:// TO DO
+		case MENU:
 			window.clear();
+			menuBackground.setTexture(menuBgTexture);
 			window.draw(menuBackground);
-			for (const auto& m : menu) {
-				window.draw(m.text);
-			}
-
-			for (int i = 0; i < menu.size(); i++)
-			{
+			for (int i = 0; i < menu.size(); i++) {
 				if (i == menuIndex) {
 					menu[i].text.setFillColor(sf::Color::Red);
 				}
@@ -283,7 +316,10 @@ int main() {
 					menu[i].text.setFillColor(sf::Color::White);
 				}
 			}
-			menuBackground.setTexture(menuBgTexture);
+			for (const auto& m : menu) {
+				window.draw(m.text);
+			}
+
 			break;
 		case BATTLE:
 			window.clear();
@@ -325,6 +361,7 @@ int main() {
 		}
 
 		window.display();
-	}
+	};
+
 	return 0;
 }

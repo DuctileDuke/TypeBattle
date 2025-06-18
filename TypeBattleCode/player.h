@@ -17,7 +17,7 @@ private:
 
     int speed = 1;
 
-    int health = 10;
+    int health = 3;
     int dmg = 2;
 
 public:

@@ -1,2 +1,9 @@
-﻿  main.cpp
-  TypeBattleCode.vcxproj -> C:\Users\Norbert\TypeBattle\TypeBattleCode\x64\Debug\TypeBattleCode.exe
+﻿  enemy.cpp
+C:\Users\janek\Desktop\Files\AiR\Repositories\Repo-TypeBattle\TypeBattleCode\enemy.cpp(18,25): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\janek\Desktop\Files\AiR\Repositories\Repo-TypeBattle\TypeBattleCode\enemy.cpp(18,21): warning C4305: 'argument': truncation from 'double' to 'float'
+  main.cpp
+  player.cpp
+C:\Users\janek\Desktop\Files\AiR\Repositories\Repo-TypeBattle\TypeBattleCode\player.cpp(19,25): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\janek\Desktop\Files\AiR\Repositories\Repo-TypeBattle\TypeBattleCode\player.cpp(19,21): warning C4305: 'argument': truncation from 'double' to 'float'
+  Generating Code...
+  TypeBattleCode.vcxproj -> C:\Users\janek\Desktop\Files\AiR\Repositories\Repo-TypeBattle\TypeBattleCode\x64\Debug\TypeBattleCode.exe

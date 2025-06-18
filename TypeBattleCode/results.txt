@@ -1,0 +1,3 @@
+Time: 17.9158s, Score: 6
+Time: 15.5308s, Score: 5
+Time: 2.87703s, Score: 0
