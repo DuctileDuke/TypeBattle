@@ -24,6 +24,14 @@ Enemy::Enemy(const std::string& nam, int heal)
     sprite.setPosition(600, 340);
 }
 
+void Enemy::reset()
+{
+    health = 10;
+    sprite.setTexture(texture);
+    sprite.setScale(0.8f, 0.8f);
+    sprite.setPosition(600, 340);
+}
+
 void Enemy::getDmg(int dmg)
 {
     if (dmg < 0)

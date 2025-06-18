@@ -43,6 +43,15 @@ void Player::draw(sf::RenderWindow* window)
     window->draw(sprite);
 }
 
+void Player::reset()
+{
+    health = 4;
+    dmg = 2;
+    sprite.setTexture(texture);
+    sprite.setScale(0.8f, 0.8f);
+    sprite.setPosition(100, 350);
+}
+
 void Player::updateTexture()
 {
     if (health <= 0) {

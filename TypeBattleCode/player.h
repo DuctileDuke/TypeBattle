@@ -38,6 +38,8 @@ public:
         return dmg;
     }
 
+    void reset();
+
     void updateTexture();
 
     void cheatTexture();

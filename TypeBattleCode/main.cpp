@@ -254,52 +254,68 @@ int main() {
 				}
 				else if (place == BATTLE)
 				{
-					youTypeStr = trim(youTypeStr);
-
-					if (currentWord != loadedWords.end() && youTypeStr == *currentWord)
-					{
-						// Deal damage
-						pointCatcher = 1 * player.getPlayerDmg();
-						goblin.getDmg(pointCatcher);
-						goblin.updateTexture(professorFlag);
-						score.alterPoints(pointCatcher);
-						text2.setFillColor(sf::Color::Black);
-						++currentWord;
-
-						if (currentWord != loadedWords.end())
-						{
+					if (!typingEnabled) {
+						player.reset();
+						goblin.reset();
+						currentWord = loadedWords.begin();
+						if (currentWord != loadedWords.end()) {
 							text2.setString(*currentWord);
 							centerTextWithOffset(text2, spriteBounds, -100.f);
+						}
+						instructionText.setString("Type the word:");
+						youTypeStr.clear();
+						youType.setString("");
+						typingEnabled = true;
+						text2.setFillColor(sf::Color::Black);
+						professorFlag = false;
+					}
+					else {
+						youTypeStr = trim(youTypeStr);
+						if (currentWord != loadedWords.end() && youTypeStr == *currentWord)
+						{
+							// Deal damage
+							pointCatcher = 1 * player.getPlayerDmg();
+							goblin.getDmg(pointCatcher);
+							goblin.updateTexture(professorFlag);
+							score.alterPoints(pointCatcher);
+							text2.setFillColor(sf::Color::Black);
+							++currentWord;
+
+							if (currentWord != loadedWords.end())
+							{
+								text2.setString(*currentWord);
+								centerTextWithOffset(text2, spriteBounds, -100.f);
+								youTypeStr.clear();
+								youType.setString("");
+							}
+						}
+						else if (youTypeStr == "matrix")
+						{
+							player.cheatTexture();
+							professorFlag = true;
 							youTypeStr.clear();
 							youType.setString("");
 						}
-					}
-					else if (youTypeStr == "matrix")
-					{
-						player.cheatTexture();
-						professorFlag = true;
-						youTypeStr.clear();
-						youType.setString("");
-					}
-					else
-					{
-						// Take damage
-						pointCatcher = 1;
-						player.getDmg(pointCatcher);
-						if (!professorFlag)
+						else
 						{
-							player.updateTexture();
+							// Take damage
+							pointCatcher = 1;
+							player.getDmg(pointCatcher);
+							if (!professorFlag)
+							{
+								player.updateTexture();
+							}
+							score.alterPoints(pointCatcher);
+							text2.setFillColor(sf::Color::Red);
+							youTypeStr.clear();
+							youType.setString("");
+							centerTextWithOffset(youType, spriteBounds, -5.f);
 						}
-						score.alterPoints(pointCatcher);
-						text2.setFillColor(sf::Color::Red);
-						youTypeStr.clear();
-						youType.setString("");
-						centerTextWithOffset(youType, spriteBounds, -5.f);
 					}
 				}
 			}
 		}
-	
+
 		switch (place)
 		{
 		case MENU:

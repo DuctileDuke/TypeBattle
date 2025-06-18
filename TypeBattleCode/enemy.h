@@ -27,6 +27,8 @@ public:
         return health;
     }
 
+    void reset();
+
     void draw(sf::RenderWindow* window);
 
     void updateTexture(bool cheat);
