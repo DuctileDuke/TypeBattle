@@ -172,6 +172,7 @@ int main() {
                 if (currentWord != loadedWords.end() && youTypeStr == *currentWord) {
                     pointCatcher = 1;
                     goblin.getDmg(pointCatcher);
+                    goblin.updateTexture();
                     score.alterPoints(pointCatcher);
                     text.setFillColor(sf::Color::Black);
                     ++currentWord;
@@ -183,10 +184,10 @@ int main() {
                         youType.setString("");
                     }
                 }
-                //////////////////////////////////
                 else {
                     pointCatcher = 1;
 					player.getDmg(pointCatcher);
+					player.updateTexture();
                     score.alterPoints(pointCatcher);
                     text.setFillColor(sf::Color::Red);
                     youTypeStr.clear();

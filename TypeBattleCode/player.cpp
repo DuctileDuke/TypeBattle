@@ -10,6 +10,11 @@ Player::Player(const std::string& nam, int heal, int maxX, int maxY)
         throw std::invalid_argument("Failed to load player texture");
     }
 
+    if (!texture2.loadFromFile("assets/playerDead.png"))
+    {
+        throw std::invalid_argument("Failed to load enemy texture");
+    }
+
     sprite.setTexture(texture);
     sprite.setScale(.8, .8);
     sprite.setPosition(100, 350);
@@ -31,4 +36,15 @@ void Player::getDmg(int dmg)
 void Player::draw(sf::RenderWindow* window)
 {
     window->draw(sprite);
+}
+
+void Player::updateTexture()
+{
+    if (health <= 0) {
+        sprite.setTexture(texture2);
+        sprite.setPosition(100, 450);
+    }
+    else {
+        sprite.setTexture(texture);
+    }
 }

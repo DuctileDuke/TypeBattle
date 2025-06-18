@@ -10,6 +10,7 @@ class Player : public GameObj
 private:
     sf::Sprite sprite;
     sf::Texture texture;
+	sf::Texture texture2;
 
     int maxX;
     int maxY;
@@ -30,6 +31,8 @@ public:
     {
         return health;
     }
+
+    void updateTexture();
 
 };
 

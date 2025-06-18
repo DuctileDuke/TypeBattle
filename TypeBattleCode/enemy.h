@@ -11,6 +11,7 @@ private:
 
     sf::Sprite sprite;
     sf::Texture texture;
+	sf::Texture texture2;
 
     int health = 5;
     int dmg = 1;
@@ -26,6 +27,9 @@ public:
     }
 
     void draw(sf::RenderWindow* window);
+
+    void updateTexture();
+
 };
 
 #endif
