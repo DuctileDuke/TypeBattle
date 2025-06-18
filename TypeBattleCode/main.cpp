@@ -13,226 +13,318 @@
 
 #include "player.h"
 #include "enemy.h"
-#include "scoreboard.cpp"
+#include "scoreboard.h"
 
 using namespace std::chrono;
 
 static int rng() {
-    return std::rand() % 50 + 1;
+	return std::rand() % 50 + 1;
 }
 
 static std::string trim(std::string smth) {
-    smth.erase(std::remove(smth.begin(), smth.end(), '\r'), smth.end());
-    return smth;
+	smth.erase(std::remove(smth.begin(), smth.end(), '\r'), smth.end());
+	return smth;
 }
 
 void centerTextWithOffset(sf::Text& text, const sf::FloatRect& container, float offsetY)
 {
-    sf::FloatRect bounds = text.getLocalBounds();
-    text.setOrigin(bounds.left + bounds.width / 2.f, bounds.top + bounds.height / 2.f);
-    text.setPosition(container.left + container.width / 2.f, container.top + container.height / 2.f + offsetY);
+	sf::FloatRect bounds = text.getLocalBounds();
+	text.setOrigin(bounds.left + bounds.width / 2.f, bounds.top + bounds.height / 2.f);
+	text.setPosition(container.left + container.width / 2.f, container.top + container.height / 2.f + offsetY);
 }
 
 int main() {
-    std::srand(static_cast<unsigned int>(std::time(0)));
+	std::srand(static_cast<unsigned int>(std::time(0)));
 
-    // Adding random IDs
-    std::list<int> nums;
-    for (int i = 0; i < 10; ++i) {
-        nums.push_back(rng());
-    }
+	// Adding random IDs
+	std::list<int> nums;
+	for (int i = 0; i < 10; ++i) {
+		nums.push_back(rng());
+	}
 
-    SQLHANDLE envHandle = nullptr;
-    SQLHANDLE connHandle = nullptr;
-    SQLHANDLE stmtHandle = nullptr;
-    SQLRETURN retCode;
+	SQLHANDLE envHandle = nullptr;
+	SQLHANDLE connHandle = nullptr;
+	SQLHANDLE stmtHandle = nullptr;
+	SQLRETURN retCode;
 
-    retCode = SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &envHandle);
-    retCode = SQLSetEnvAttr(envHandle, SQL_ATTR_ODBC_VERSION, (void*)SQL_OV_ODBC3, 0);
-    retCode = SQLAllocHandle(SQL_HANDLE_DBC, envHandle, &connHandle);
+	retCode = SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &envHandle);
+	retCode = SQLSetEnvAttr(envHandle, SQL_ATTR_ODBC_VERSION, (void*)SQL_OV_ODBC3, 0);
+	retCode = SQLAllocHandle(SQL_HANDLE_DBC, envHandle, &connHandle);
 
-    // Database connection
-    std::string connStr =
-        "Driver={Microsoft Access Driver (*.mdb, *.accdb)};"
-        "DBQ=./data/Words.accdb;";
+	// Database connection
+	std::string connStr =
+		"Driver={Microsoft Access Driver (*.mdb, *.accdb)};"
+		"DBQ=./data/Words.accdb;";
 
-    retCode = SQLDriverConnect(connHandle, NULL,
-        (SQLCHAR*)(const unsigned char*)connStr.c_str(),
-        SQL_NTS, NULL, 0, NULL, SQL_DRIVER_COMPLETE);
-    if (!SQL_SUCCEEDED(retCode)) {
-        std::cout << "Error - Connection failed." << std::endl;
-        return 1;
-    }
+	retCode = SQLDriverConnect(connHandle, NULL,
+		(SQLCHAR*)(const unsigned char*)connStr.c_str(),
+		SQL_NTS, NULL, 0, NULL, SQL_DRIVER_COMPLETE);
+	if (!SQL_SUCCEEDED(retCode)) {
+		std::cout << "Error - Connection failed." << std::endl;
+		return 1;
+	}
 
-    std::list<std::string> loadedWords;
+	std::list<std::string> loadedWords;
 
-    for (const int& rNumber : nums) {
+	for (const int& rNumber : nums) {
 
-        // Loading words from the database based on random IDs
-        std::string query = "SELECT * FROM WordSource WHERE Id = " + std::to_string(rNumber);
+		// Loading words from the database based on random IDs
+		std::string query = "SELECT * FROM WordSource WHERE Id = " + std::to_string(rNumber);
 
-        SQLAllocHandle(SQL_HANDLE_STMT, connHandle, &stmtHandle);
-        retCode = SQLExecDirect(stmtHandle, (SQLCHAR*)query.c_str(), SQL_NTS);
+		SQLAllocHandle(SQL_HANDLE_STMT, connHandle, &stmtHandle);
+		retCode = SQLExecDirect(stmtHandle, (SQLCHAR*)query.c_str(), SQL_NTS);
 
-        SQLCHAR columnData[256];
-        if (SQLFetch(stmtHandle) == SQL_SUCCESS) {
-            SQLGetData(stmtHandle, 2, SQL_C_CHAR, columnData, sizeof(columnData), NULL);
-            std::string tempWord(reinterpret_cast<const char*>(columnData));
-            loadedWords.push_back(trim(tempWord));
-        }
-
-        SQLFreeHandle(SQL_HANDLE_STMT, stmtHandle);
-    }
-
-    // Close database connection
-    SQLDisconnect(connHandle);
-    SQLFreeHandle(SQL_HANDLE_DBC, connHandle);
-    SQLFreeHandle(SQL_HANDLE_ENV, envHandle);
-
-    sf::RenderWindow window(sf::VideoMode(1280, 720), "SFML window");
-
-    Player player("Player", 100, 100, 100);
-    Enemy goblin("Goblin", 5);
-
-    // Loading assets
-    sf::Texture battleBg;
-    battleBg.loadFromFile("assets/BattleBg.jpg");
-    sf::Sprite backgroundSprite(battleBg);
-
-    sf::Texture papyrus;
-    papyrus.loadFromFile("assets/Papyrus.png");
-    sf::Sprite foregroundSprite(papyrus);
-    foregroundSprite.setPosition(910, 130);
-    foregroundSprite.setScale(2.4f, 2.4f);
-
-    sf::FloatRect spriteBounds = foregroundSprite.getGlobalBounds();
-
-    sf::Font font;
-    font.loadFromFile("./fonts/ITCBLKAD.TTF");
-
-    sf::Text text("", font, 45);
-    text.setFillColor(sf::Color::Black);
-
-    sf::Text youType("", font, 45);
-    youType.setFillColor(sf::Color::Black);
-
-    sf::Text instructionText("Type the word:", font, 45);
-    instructionText.setFillColor(sf::Color::Black);
-
-    sf::Text playerHealth;
-    playerHealth.setFont(font);
-    playerHealth.setCharacterSize(40);
-    playerHealth.setPosition(955, 418.f);
-    playerHealth.setFillColor(sf::Color::Black);
-    playerHealth.setString("Player Health: " + std::to_string(player.getPlayerHealth()));
-
-    sf::Text goblinHealth;
-    goblinHealth.setFont(font);
-    goblinHealth.setCharacterSize(40);
-    goblinHealth.setPosition(955, 468.f);
-    goblinHealth.setFillColor(sf::Color::Red);
-    goblinHealth.setString("Goblin Health: " + std::to_string(goblin.getEnemyHealth()));
-
-    sf::FloatRect instrBounds = instructionText.getLocalBounds();
-    instructionText.setOrigin(instrBounds.left + instrBounds.width / 2.f, instrBounds.top + instrBounds.height / 2.f);
-    instructionText.setPosition(spriteBounds.left + spriteBounds.width / 2.f, spriteBounds.top + 95.f);
-
-    std::string youTypeStr;
-    std::list<std::string>::iterator currentWord = loadedWords.begin();
-
-    if (currentWord != loadedWords.end()) {
-        text.setString(*currentWord);
-        centerTextWithOffset(text, spriteBounds, -100.f);
-    }
-
-    Scoreboard score;
-    int pointCatcher = 0;
-    score.alterPoints(pointCatcher);
-
-    bool typingEnabled = true;
-
-    while (window.isOpen()) {
-        sf::Event event;
-        while (window.pollEvent(event))
-        {
-            if (event.type == sf::Event::Closed)
-                window.close();
-
-            if (typingEnabled && event.type == sf::Event::TextEntered) {
-                if (event.text.unicode < 128) {
-                    youTypeStr += static_cast<char>(event.text.unicode);
-                    youType.setString(youTypeStr);
-                    centerTextWithOffset(youType, spriteBounds, -5.f);
-                }
-            }
-
-            if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Enter) {
-                youTypeStr = trim(youTypeStr);
-
-                if (currentWord != loadedWords.end() && youTypeStr == *currentWord) {
-                    pointCatcher = 1;
-                    goblin.getDmg(pointCatcher);
-                    goblin.updateTexture();
-                    score.alterPoints(pointCatcher);
-                    text.setFillColor(sf::Color::Black);
-                    ++currentWord;
-
-                    if (currentWord != loadedWords.end()) {
-                        text.setString(*currentWord);
-                        centerTextWithOffset(text, spriteBounds, -100.f);
-                        youTypeStr.clear();
-                        youType.setString("");
-                    }
-                }
-                else {
-                    pointCatcher = 1;
-					player.getDmg(pointCatcher);
-					player.updateTexture();
-                    score.alterPoints(pointCatcher);
-                    text.setFillColor(sf::Color::Red);
-                    youTypeStr.clear();
-                    youType.setString("");
-                    centerTextWithOffset(youType, spriteBounds, -5.f);
-                }
-            }
-        }
-
-        window.clear();
-
-        window.draw(backgroundSprite);
-        player.draw(&window);
-        goblin.draw(&window);
-
-        window.draw(foregroundSprite);
-        window.draw(text);
-        window.draw(instructionText);
-        window.draw(youType);
-
-        playerHealth.setString("Player Health: " + std::to_string(player.getPlayerHealth()));
-        window.draw(playerHealth);
-        goblinHealth.setString("Goblin Health: " + std::to_string(goblin.getEnemyHealth()));
-        window.draw(goblinHealth);
-
-        if (goblin.getEnemyHealth() <= 0)
-        {
-            text.setString("Victory");
-            centerTextWithOffset(text, spriteBounds, -100.f);
-            youTypeStr.clear();
-            youType.setString("");
-            instructionText.setString("");
-            typingEnabled = false;
-        }
-        if (player.getPlayerHealth() <= 0)
-        {
-            text.setString("Defeat");
-            centerTextWithOffset(text, spriteBounds, -100.f);
-            youTypeStr.clear();
-            youType.setString("");
-            instructionText.setString("");
-            typingEnabled = false;
+		SQLCHAR columnData[256];
+		if (SQLFetch(stmtHandle) == SQL_SUCCESS) {
+			SQLGetData(stmtHandle, 2, SQL_C_CHAR, columnData, sizeof(columnData), NULL);
+			std::string tempWord(reinterpret_cast<const char*>(columnData));
+			loadedWords.push_back(trim(tempWord));
 		}
 
-        window.display();
-    }
-    return 0;
+		SQLFreeHandle(SQL_HANDLE_STMT, stmtHandle);
+	}
+
+	// Close database connection
+	SQLDisconnect(connHandle);
+	SQLFreeHandle(SQL_HANDLE_DBC, connHandle);
+	SQLFreeHandle(SQL_HANDLE_ENV, envHandle);
+
+	sf::RenderWindow window(sf::VideoMode(1280, 720), "SFML window");
+
+	enum Place
+	{
+		MENU,
+		BATTLE
+	};
+
+	Place place = MENU;
+
+	Player player("Player", 100, 100, 100);
+	Enemy goblin("Goblin", 5);
+
+	// Loading assets
+	sf::Texture menuBgTexture;
+	if (!menuBgTexture.loadFromFile("assets/menuBg.png"))
+	{
+		return EXIT_FAILURE;
+	}
+	sf::Sprite menuBackground(menuBgTexture);
+
+	sf::Texture battleBg;
+	if (!battleBg.loadFromFile("assets/BattleBg.jpg"))
+	{
+		return EXIT_FAILURE;
+	}
+	sf::Sprite backgroundSprite(battleBg);
+
+	sf::Texture papyrus;
+	if (!papyrus.loadFromFile("assets/Papyrus.png"))
+	{
+		return EXIT_FAILURE;
+	}
+	sf::Sprite foregroundSprite(papyrus);
+
+	foregroundSprite.setPosition(910, 130);
+	foregroundSprite.setScale(2.4f, 2.4f);
+
+	sf::FloatRect spriteBounds = foregroundSprite.getGlobalBounds();
+
+	sf::Font font;
+	font.loadFromFile("./fonts/ITCBLKAD.TTF");
+
+	struct Menu
+	{
+		std::string writing;
+		sf::Text text;
+	};
+
+	std::vector<Menu> menu;
+	int menuIndex = 0;
+
+	sf::Text text;
+	text.setFont(font);
+	text.setCharacterSize(100);
+	text.setPosition(100, 200);
+	text.setFillColor(sf::Color::White);
+
+	Menu menu1{ "Play", text };
+	menu.push_back(menu1);
+
+	text.setPosition(100, 250);
+	Menu menu2{ "Quit", text };
+	menu.push_back(menu2);
+
+	sf::Text text2("", font, 45);
+	text2.setFillColor(sf::Color::Black);
+
+	sf::Text youType("", font, 45);
+	youType.setFillColor(sf::Color::Black);
+
+	sf::Text instructionText("Type the word:", font, 45);
+	instructionText.setFillColor(sf::Color::Black);
+
+	sf::Text playerHealth;
+	playerHealth.setFont(font);
+	playerHealth.setCharacterSize(40);
+	playerHealth.setPosition(955, 418.f);
+	playerHealth.setFillColor(sf::Color::Black);
+	playerHealth.setString("Player Health: " + std::to_string(player.getPlayerHealth()));
+
+	sf::Text goblinHealth;
+	goblinHealth.setFont(font);
+	goblinHealth.setCharacterSize(40);
+	goblinHealth.setPosition(955, 468.f);
+	goblinHealth.setFillColor(sf::Color::Red);
+	goblinHealth.setString("Goblin Health: " + std::to_string(goblin.getEnemyHealth()));
+
+	sf::FloatRect instrBounds = instructionText.getLocalBounds();
+	instructionText.setOrigin(instrBounds.left + instrBounds.width / 2.f, instrBounds.top + instrBounds.height / 2.f);
+	instructionText.setPosition(spriteBounds.left + spriteBounds.width / 2.f, spriteBounds.top + 95.f);
+
+	std::string youTypeStr;
+	std::list<std::string>::iterator currentWord = loadedWords.begin();
+
+	if (currentWord != loadedWords.end()) {
+		text2.setString(*currentWord);
+		centerTextWithOffset(text2, spriteBounds, -100.f);
+	}
+
+
+
+	Scoreboard score;
+	int pointCatcher = 0;
+	score.alterPoints(pointCatcher);
+
+	bool typingEnabled = true;
+
+	while (window.isOpen())
+	{
+		sf::Event event;
+		while (window.pollEvent(event))
+		{
+			if (event.type == sf::Event::Closed)
+				window.close();
+
+			if (typingEnabled && event.type == sf::Event::TextEntered)
+			{
+				if (event.text.unicode < 128)
+				{
+					youTypeStr += static_cast<char>(event.text.unicode);
+					youType.setString(youTypeStr);
+					centerTextWithOffset(youType, spriteBounds, -5.f);
+				}
+			}
+
+			if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Enter)
+			{
+				if (place == MENU)
+				{
+					if (menuIndex == 0)
+					{
+						place = BATTLE;
+					}
+					else if (menuIndex == 1)
+					{
+						window.close();
+					}
+				}
+
+				else if (place == BATTLE)
+				{
+					youTypeStr = trim(youTypeStr);
+
+					if (currentWord != loadedWords.end() && youTypeStr == *currentWord)
+					{
+						pointCatcher = 1;
+						goblin.getDmg(pointCatcher);
+						goblin.updateTexture();
+						score.alterPoints(pointCatcher);
+						text2.setFillColor(sf::Color::Black);
+						++currentWord;
+
+						if (currentWord != loadedWords.end())
+						{
+							text2.setString(*currentWord);
+							centerTextWithOffset(text2, spriteBounds, -100.f);
+							youTypeStr.clear();
+							youType.setString("");
+						}
+					}
+					else
+					{
+						pointCatcher = 1;
+						player.getDmg(pointCatcher);
+						player.updateTexture();
+						score.alterPoints(pointCatcher);
+						text2.setFillColor(sf::Color::Red);
+						youTypeStr.clear();
+						youType.setString("");
+						centerTextWithOffset(youType, spriteBounds, -5.f);
+					}
+				}
+			}
+		}
+
+		switch (place)
+		{
+		case MENU:// TO DO
+			window.clear();
+			window.draw(menuBackground);
+			for (const auto& m : menu) {
+				window.draw(m.text);
+			}
+
+			for (int i = 0; i < menu.size(); i++)
+			{
+				if (i == menuIndex) {
+					menu[i].text.setFillColor(sf::Color::Red);
+				}
+				else {
+					menu[i].text.setFillColor(sf::Color::White);
+				}
+			}
+			menuBackground.setTexture(menuBgTexture);
+			break;
+		case BATTLE:
+			window.clear();
+			window.draw(backgroundSprite);
+			player.draw(&window);
+			goblin.draw(&window);
+
+			window.draw(foregroundSprite);
+			window.draw(text2);
+			window.draw(instructionText);
+			window.draw(youType);
+
+			playerHealth.setString("Player Health: " + std::to_string(player.getPlayerHealth()));
+			window.draw(playerHealth);
+			goblinHealth.setString("Goblin Health: " + std::to_string(goblin.getEnemyHealth()));
+			window.draw(goblinHealth);
+
+			if (goblin.getEnemyHealth() <= 0)
+			{
+				text2.setString("Victory");
+				centerTextWithOffset(text2, spriteBounds, -100.f);
+				youTypeStr.clear();
+				youType.setString("");
+				instructionText.setString("");
+				typingEnabled = false;
+			}
+			if (player.getPlayerHealth() <= 0)
+			{
+				text2.setString("Defeat");
+				centerTextWithOffset(text2, spriteBounds, -100.f);
+				youTypeStr.clear();
+				youType.setString("");
+				instructionText.setString("");
+				typingEnabled = false;
+				break;
+		default:
+			break;
+			}
+		}
+
+		window.display();
+	}
+	return 0;
 }

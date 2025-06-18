@@ -1,34 +1,24 @@
-#include <windows.h>
-#include <sql.h>
-#include <ctime>
-#include <chrono>
+#include "scoreboard.h"
 #include <iostream>
 
 using namespace std::chrono;
 
-class Scoreboard {
-public:
-    Scoreboard() {
-        startTyping = steady_clock::now();
-        score = 0;
-    }
+Scoreboard::Scoreboard() {
+    startTyping = steady_clock::now();
+    score = 0;
+}
 
-    ~Scoreboard() {
-        auto endTyping = steady_clock::now();
-        duration<double> elapsed = endTyping - startTyping;
-        std::cout << "Time: " << elapsed.count() << "s" << std::endl;
-        std::cout << "Final Score: " << score << std::endl;
-    }
+Scoreboard::~Scoreboard() {
+    auto endTyping = steady_clock::now();
+    duration<double> elapsed = endTyping - startTyping;
+    std::cout << "Time: " << elapsed.count() << "s" << std::endl;
+    std::cout << "Final Score: " << score << std::endl;
+}
 
-    void alterPoints(int points) {
-        score += points;
-    }
+void Scoreboard::alterPoints(int points) {
+    score += points;
+}
 
-    float share() {
-        return score;
-    }
-
-private:
-    time_point<steady_clock> startTyping;
-    float score;
-};
+float Scoreboard::share() {
+    return score;
+}
