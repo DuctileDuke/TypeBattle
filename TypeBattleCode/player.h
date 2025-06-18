@@ -26,6 +26,11 @@ public:
 
     void draw(sf::RenderWindow* window);
 
+    int getPlayerHealth()
+    {
+        return health;
+    }
+
 };
 
 #endif

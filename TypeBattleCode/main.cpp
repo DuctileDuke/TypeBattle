@@ -13,6 +13,7 @@
 
 #include "player.h"
 #include "enemy.h"
+#include "scoreboard.cpp"
 
 using namespace std::chrono;
 
@@ -25,34 +26,8 @@ static std::string trim(std::string smth) {
     return smth;
 }
 
-class Scoreboard {
-public:
-    Scoreboard() {
-        startTyping = steady_clock::now();
-        score = 0;
-    }
-
-    ~Scoreboard() {
-        auto endTyping = steady_clock::now();
-        duration<double> elapsed = endTyping - startTyping;
-        std::cout << "Time: " << elapsed.count() << "s" << std::endl;
-        std::cout << "Final Score: " << score << std::endl;
-    }
-
-    void alterPoints(int points) {
-        score += points;
-    }
-
-    float share() {
-        return score;
-    }
-
-private:
-    time_point<steady_clock> startTyping;
-    float score;
-};
-
-void centerTextWithOffset(sf::Text& text, const sf::FloatRect& container, float offsetY) {
+void centerTextWithOffset(sf::Text& text, const sf::FloatRect& container, float offsetY)
+{
     sf::FloatRect bounds = text.getLocalBounds();
     text.setOrigin(bounds.left + bounds.width / 2.f, bounds.top + bounds.height / 2.f);
     text.setPosition(container.left + container.width / 2.f, container.top + container.height / 2.f + offsetY);
@@ -116,6 +91,9 @@ int main() {
 
     sf::RenderWindow window(sf::VideoMode(1280, 720), "SFML window");
 
+    Player player("Player", 100, 100, 100);
+    Enemy goblin("Goblin", 5);
+
     // Loading assets
     sf::Texture battleBg;
     battleBg.loadFromFile("assets/BattleBg.jpg");
@@ -141,6 +119,20 @@ int main() {
     sf::Text instructionText("Type the word:", font, 45);
     instructionText.setFillColor(sf::Color::Black);
 
+    sf::Text playerHealth;
+    playerHealth.setFont(font);
+    playerHealth.setCharacterSize(40);
+    playerHealth.setPosition(955, 418.f);
+    playerHealth.setFillColor(sf::Color::Black);
+    playerHealth.setString("Player Health: " + std::to_string(player.getPlayerHealth()));
+
+    sf::Text goblinHealth;
+    goblinHealth.setFont(font);
+    goblinHealth.setCharacterSize(40);
+    goblinHealth.setPosition(955, 468.f);
+    goblinHealth.setFillColor(sf::Color::Red);
+    goblinHealth.setString("Goblin Health: " + std::to_string(goblin.getEnemyHealth()));
+
     sf::FloatRect instrBounds = instructionText.getLocalBounds();
     instructionText.setOrigin(instrBounds.left + instrBounds.width / 2.f, instrBounds.top + instrBounds.height / 2.f);
     instructionText.setPosition(spriteBounds.left + spriteBounds.width / 2.f, spriteBounds.top + 95.f);
@@ -158,9 +150,6 @@ int main() {
     score.alterPoints(pointCatcher);
 
     bool typingEnabled = true;
-
-    Player player("Player", 100, 100, 100);
-    Enemy goblin("Goblin", 5);
 
     while (window.isOpen()) {
         sf::Event event;
@@ -194,8 +183,10 @@ int main() {
                         youType.setString("");
                     }
                 }
+                //////////////////////////////////
                 else {
                     pointCatcher = 1;
+					player.getDmg(pointCatcher);
                     score.alterPoints(pointCatcher);
                     text.setFillColor(sf::Color::Red);
                     youTypeStr.clear();
@@ -216,6 +207,11 @@ int main() {
         window.draw(instructionText);
         window.draw(youType);
 
+        playerHealth.setString("Player Health: " + std::to_string(player.getPlayerHealth()));
+        window.draw(playerHealth);
+        goblinHealth.setString("Goblin Health: " + std::to_string(goblin.getEnemyHealth()));
+        window.draw(goblinHealth);
+
         if (goblin.getEnemyHealth() <= 0)
         {
             text.setString("Victory");
@@ -225,6 +221,15 @@ int main() {
             instructionText.setString("");
             typingEnabled = false;
         }
+        if (player.getPlayerHealth() <= 0)
+        {
+            text.setString("Defeat");
+            centerTextWithOffset(text, spriteBounds, -100.f);
+            youTypeStr.clear();
+            youType.setString("");
+            instructionText.setString("");
+            typingEnabled = false;
+		}
 
         window.display();
     }
