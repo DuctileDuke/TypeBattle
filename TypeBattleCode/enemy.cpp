@@ -14,6 +14,11 @@ Enemy::Enemy(const std::string& nam, int heal)
         throw std::invalid_argument("Failed to load enemy texture");
     }
 
+    if (!texture3.loadFromFile("assets/ash.png"))
+    {
+        throw std::invalid_argument("Failed to load enemy texture");
+    }
+
     sprite.setTexture(texture);
     sprite.setScale(.8, .8);
     sprite.setPosition(600, 340);
@@ -36,12 +41,25 @@ void Enemy::draw(sf::RenderWindow* window)
     window->draw(sprite);
 }
 
-void Enemy::updateTexture()
+void Enemy::updateTexture(bool cheat)
 {
-    if (health <= 0) {
-        sprite.setTexture(texture2);
+    if (!cheat)
+    {
+        if (health <= 0) {
+            sprite.setTexture(texture2);
+        }
+        else {
+            sprite.setTexture(texture);
+        }
     }
     else {
-        sprite.setTexture(texture);
+        if (health <= 0) {
+            sprite.setTexture(texture3, true);
+            sprite.setScale(.2, .2);
+            sprite.setPosition(620, 460);
+        }
+        else {
+            sprite.setTexture(texture);
+        }
     }
 }

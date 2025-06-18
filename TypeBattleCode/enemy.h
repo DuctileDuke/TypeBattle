@@ -12,6 +12,7 @@ private:
     sf::Sprite sprite;
     sf::Texture texture;
 	sf::Texture texture2;
+    sf::Texture texture3;
 
     int health = 10;
     int dmg = 1;
@@ -28,7 +29,7 @@ public:
 
     void draw(sf::RenderWindow* window);
 
-    void updateTexture();
+    void updateTexture(bool cheat);
 
 };
 

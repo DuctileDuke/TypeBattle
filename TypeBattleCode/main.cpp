@@ -261,7 +261,7 @@ int main() {
 						// Deal damage
 						pointCatcher = 1 * player.getPlayerDmg();
 						goblin.getDmg(pointCatcher);
-						goblin.updateTexture();
+						goblin.updateTexture(professorFlag);
 						score.alterPoints(pointCatcher);
 						text2.setFillColor(sf::Color::Black);
 						++currentWord;
